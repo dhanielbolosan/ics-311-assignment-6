@@ -4,7 +4,7 @@ from contextlib import contextmanager
 # prevent repeating connection for every function
 @contextmanager
 def connect_db():
-    conn = sqlite3.connect('islands.db')
+    conn = sqlite3.connect('networks.db')
     cursor = conn.cursor()
     try:
         yield cursor
@@ -30,12 +30,13 @@ def create_db():
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS connections (
-                       connection_id INTEGER PRIMARY KEY,
-                       user_id INTEGER NOT NULL,
-                       target_user_id INTEGER NOT NULL,
-                       connection_type TEXT CHECK (connection_type IN ('follows','friends', 'co-worker', 'blocked', 'has read posts by')),
-                       FOREIGN KEY (user_id) REFERENCES users(user_id),
-                       FOREIGN KEY (target_user_id) REFERENCES users(user_id)
+               connection_id INTEGER PRIMARY KEY,
+               user_id INTEGER NOT NULL,
+               target_user_id INTEGER NOT NULL,
+               connection_type TEXT CHECK (connection_type IN ('follows','friends', 'co-worker', 'blocked', 'has read posts by')),
+               FOREIGN KEY (user_id) REFERENCES users(user_id),
+               FOREIGN KEY (target_user_id) REFERENCES users(user_id)
+            )
         ''')
 
         cursor.execute('''
@@ -62,7 +63,6 @@ def create_db():
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS views (
-                       view_id INTEGER PRIMARY KEY,
                        post_id INTEGER NOT NULL,
                        user_id INTEGER NOT NULL,
                        view_time TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -77,13 +77,10 @@ def create_db():
             seed_db(cursor)
 
 def seed_db(cursor=None):
-    if cursor is None:
-        with connect_db() as cursor:
-            seed_db(cursor)
-            return
-    
-    # prevent duplication
-    if cursor.execute('SELECT COUNT(*) from users').fetchone()[0] == 0:
+        if cursor is None:
+            with connect_db() as cursor:
+                seed_db(cursor)
+                return
 
         # (user_name, real_name, age, gender, job, location)
         users_data = [
@@ -98,6 +95,10 @@ def seed_db(cursor=None):
             ("jackie_chan", "Jackie Chan", 70, "Male", "Actor", "CHN"),                 # user id 9
             ("nicki_minaj", "Nicki Minaj", 41, "Female", "Singer", "TTO")               # user id 10
         ]
+
+        cursor.executemany('''
+                        INSERT INTO users (user_name, real_name, age, gender, job, location) VALUES (?, ?, ?, ?, ?, ?)
+                        ''', users_data)
 
         # (user_id, target_user_id, connection_type)
         # some are bidirectional
@@ -128,18 +129,124 @@ def seed_db(cursor=None):
             (3, 8, "has read posts by"), # Mohammad has read posts by Elon
         ]
 
+        cursor.executemany('''
+                        INSERT INTO connections (user_id, target_user_id, connection_type) VALUES (?, ?, ?)
+                        ''', connections_data)
+
         # (post_id, user_id, content, post_date)
         posts_data = [
+            # John's posts
             (1, 1, "Blah Blah Blah", "2024-01-01 12:00:00"),
+            # Jane's posts
             (2, 2, "Hello", "2024-01-02 12:00:00"),
+            # Mohammad's posts
             (3, 3, "Namaste", "2024-01-03 12:00:00"),
+            # Susan's posts
             (4, 4, "Annyeonghaseyo", "2024-01-04 12:00:00"),
+            # Ana's posts
             (5, 5, "Ola", "2024-01-05 12:00:00"),
+            # Elena's posts
             (6, 6, "Hola", "2024-01-06 12:00:00"),
+            # Sergei's posts
             (7, 7, "Privet", "2024-01-07 12:00:00"),
+            # Elon's posts
             (8, 8, "Hello World!", "2024-01-08 12:00:00"),
+            # Jackie's posts
             (9, 9, "Ni hao", "2024-01-09 12:00:00"),
+            # Nicki's posts
             (10, 10, "Hello", "2024-01-10 12:00:00")
         ]
 
-    
+        cursor.executemany('''
+                        INSERT INTO posts (post_id, user_id, content, post_date) VALUES (?, ?, ?, ?)
+                        ''', posts_data)
+
+        # (comment_id, user_id, post_id, content, comment_date)
+        comments_data = [
+            # John's comments
+            (1, 1, 1, "Nice post!", "2024-01-01 12:01:00"),
+            # Jane's comments
+            (2, 2, 1, "Nice post!", "2024-01-02 12:02:00"),
+            # Mohammad's comments
+            (3, 3, 1, "Nice post!", "2024-01-03 12:03:00"),
+            # Susan's comments
+            (4, 4, 1, "Nice post!", "2024-01-04 12:04:00"),
+            # Ana's comments
+            (5, 5, 1, "Nice post!", "2024-01-05 12:05:00"),
+            # Elena's comments
+            (6, 6, 1, "Nice post!", "2024-01-06 12:06:00"),
+            # Sergei's comments
+            (7, 7, 1, "Nice post!", "2024-01-07 12:07:00"),
+            # Elon's comments
+            (8, 8, 1, "Nice post!", "2024-01-08 12:08:00"),
+            # Jackie's comments
+            (9, 9, 1, "Nice post!", "2024-01-09 12:09:00"),
+            # Nicki's comments
+            (10, 10, 1, "Nice post!", "2024-01-10 12:10:00"),
+        ]
+
+        cursor.executemany('''
+                        INSERT INTO comments (comment_id, user_id, post_id, content, comment_date) VALUES (?, ?, ?, ?, ?)
+                        ''', comments_data)
+
+        # (post_id, user_id, view_time)
+        views_data = [
+            # John's views
+            (1, 1, "2024-01-01 12:01:00"),
+            (1, 3, "2024-01-01 12:03:00"),
+            (1, 5, "2024-01-01 12:05:00"),
+
+            # Jane's views
+            (2, 2, "2024-01-02 12:02:00"),
+            (2, 4, "2024-01-02 12:04:00"),
+            (2, 6, "2024-01-02 12:06:00"),
+
+            # Mohammad's views
+            (3, 1, "2024-01-03 12:01:00"),
+            (3, 4, "2024-01-03 12:04:00"),
+            (3, 7, "2024-01-03 12:07:00"),
+
+            # Susan's views
+            (4, 2, "2024-01-04 12:02:00"),
+            (4, 5, "2024-01-04 12:05:00"),
+            (4, 8, "2024-01-04 12:08:00"),
+
+            # Ana's views
+            (5, 1, "2024-01-05 12:01:00"),
+            (5, 3, "2024-01-05 12:03:00"),
+            (5, 9, "2024-01-05 12:09:00"),
+
+            # Elena's views
+            (6, 2, "2024-01-06 12:02:00"),
+            (6, 4, "2024-01-06 12:04:00"),
+            (6, 10, "2024-01-06 12:10:00"),
+
+            # Sergei's views
+            (7, 3, "2024-01-07 12:03:00"),
+            (7, 6, "2024-01-07 12:06:00"),
+            (7, 8, "2024-01-07 12:08:00"),
+
+            # Elon's views
+            (8, 1, "2024-01-08 12:01:00"),
+            (8, 5, "2024-01-08 12:05:00"),
+            (8, 9, "2024-01-08 12:09:00"),
+
+            # Jackie's views
+            (9, 2, "2024-01-09 12:02:00"),
+            (9, 4, "2024-01-09 12:04:00"),
+            (9, 7, "2024-01-09 12:07:00")
+        ]
+
+        cursor.executemany('''
+                           INSERT INTO views (post_id, user_id, view_time) VALUES (?, ?, ?)
+                        ''', views_data)
+
+
+def reset_db():
+    with connect_db() as cursor:
+        cursor.execute('DROP TABLE IF EXISTS users')
+        cursor.execute('DROP TABLE IF EXISTS connections')
+        cursor.execute('DROP TABLE IF EXISTS posts')
+        cursor.execute('DROP TABLE IF EXISTS comments')
+        cursor.execute('DROP TABLE IF EXISTS views')
+        create_db()

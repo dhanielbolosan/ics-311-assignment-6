@@ -8,13 +8,13 @@ from typing import List
 
 class User:
     def __init__(self, user_data) -> None:
-        self.user_id = user_data.user_id
-        self.user_name = user_data.user_name
-        self.real_name = user_data.real_name
-        self.age = user_data.age
-        self.gender = user_data.gender
-        self.job = user_data.job
-        self.location = user_data.gender
+        self.user_id = user_data['user_id']
+        self.user_name = user_data['user_name']
+        self.real_name = user_data['real_name']
+        self.age = user_data['age']
+        self.gender = user_data['gender']
+        self.job = user_data['job']
+        self.location = user_data['gender']
     
     def get_user_id(self) -> int:
         return self.user_id
@@ -40,10 +40,10 @@ class User:
 
 class Connection:
     def __init__(self, connection_data) -> None:
-        self.connection_id = connection_data.connection_id
-        self.user_id = connection_data.user_id
-        self.target_user_id = connection_data.target_user_id
-        self.connection_type = connection_data.connection_type
+        self.connection_id = connection_data['connection_id']
+        self.user_id = connection_data['user_id']
+        self.target_user_id = connection_data['target_user_id']
+        self.connection_type = connection_data['connection_type']
     
     def get_connection_id(self) -> int:
         return self.connection_id
@@ -60,10 +60,10 @@ class Connection:
 
 class Post:
     def __init__(self, post_data) -> None:
-        self.post_id = post_data.post_id
-        self.user_id = post_data.user_id
-        self.content = post_data.content
-        self.post_date = post_data.post_date
+        self.post_id = post_data['post_id']
+        self.user_id = post_data['user_id']
+        self.content = post_data['content']
+        self.post_date = post_data['post_date']
       
     def get_post_id(self) -> int:
         return self.post_id
@@ -80,11 +80,11 @@ class Post:
 
 class Comment:
     def __init__(self, comment_data) -> None:
-        self.comment_id = comment_data.comment_id
-        self.user_id = comment_data.user_id
-        self.post_id = comment_data.post_id
-        self.content = comment_data.content
-        self.comment_date = comment_data.comment_date
+        self.comment_id = comment_data['comment_id']
+        self.user_id = comment_data['user_id']
+        self.post_id = comment_data['post_id']
+        self.content = comment_data['content']
+        self.comment_date = comment_data['comment_date']
 
     def get_comment_id(self) -> int:
         return self.comment_id
@@ -104,9 +104,9 @@ class Comment:
 
 class View:
     def __init__(self, view_data) -> None:
-        self.post_id = view_data.post_id
-        self.user_id = view_data.user_id
-        self.view_time = view_data.view_time
+        self.post_id = view_data['post_id']
+        self.user_id = view_data['user_id']
+        self.view_time = view_data['view_time']
     
     def get_post_id(self) -> int:
         return self.post_id

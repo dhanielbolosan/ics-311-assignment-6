@@ -425,7 +425,7 @@ def get_connections_data():
                 'connection_id': row[0],
                 'user_id': row[1],
                 'target_user_id': row[2],
-                'connection_Type': row[3]
+                'connection_type': row[3]
             })
     return connections
 

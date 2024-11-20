@@ -3,6 +3,7 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import re
 
+# provides trending posts with the options of filtering
 def get_trending_posts(keyword_include=None, keyword_exclude=None, user_filter=None):
     posts = get_posts_data()
     views = get_views_data()
@@ -30,11 +31,10 @@ def get_trending_posts(keyword_include=None, keyword_exclude=None, user_filter=N
 
     if user_filter:
         posts = [post for post in posts if user_filter(post)]
-        print(f"After user filter: {len(post)} posts")
-    
-    sorted_posts = sorted(posts, key=lambda p: trend_report.get(p['post_id'], 0), reverse=True)
+        print(f"After user filter: {len(posts)} posts")
 
-    return sorted_posts, trend_report
+    return posts, trend_report
+
 
 def get_user_filter_option():
     users = get_users_data()
@@ -48,7 +48,7 @@ def get_user_filter_option():
     print("2. Age")
     print("3. Location")
     filter_choice = int(input("Select an option: "))
-
+    
     filter_function = None
     if filter_choice == 0:
         return None
@@ -159,25 +159,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    '''
-    # post filtering
-    filtered_posts = []
-    for post in posts:
-        content = post['content'].lower()
-        user_id = post['user_id']
-
-        if keyword_include and keyword_include.lower() not in content:
-            continue
-        if keyword_exclude and keyword_exclude.lower() in content:
-            continue
-        if user_filter:
-            users = get_users_data()
-            user = next((u for u in users if u['user_id'] == user_id), None)
-            if not user or not all(user.get(k) == v for k, v in user_filter.items()):
-                continue
-
-        filtered_posts.append(post)
-
-    filtered_posts.sort(key=lambda p: trend_report[p['post_id']], reverse=True)
-    '''

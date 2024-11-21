@@ -20,28 +20,28 @@ def get_trending_posts(keyword_include=None, keyword_exclude=None, user_filter=N
         post_comments = len([c for c in comments if c['post_id'] == post_id])
 
         # store in dictionary
-        trend_report[post_id] = post_views + post_comments
+        trend_report[post_id] = 0.5*(post_views) + post_comments
     
     # modify trend report if include filter is applied
     if keyword_include:
-        posts = [post for post in posts if keyword_include.lower() in post['content'].lower()]
+        posts = [p for p in posts if keyword_include.lower() in p['content'].lower()]
         print(f"\nAfter include filter: {len(posts)} posts")
 
     # modify trend report if exclude filter is applied
     if keyword_exclude:
-        posts = [post for post in posts if keyword_exclude.lower() not in post['content'].lower()]
+        posts = [p for p in posts if keyword_exclude.lower() not in p['content'].lower()]
         print(f"\nAfter exclude filter: {len(posts)} posts")
 
     # modify trend report if user filter is applied
     if user_filter:
-        posts = [post for post in posts if user_filter(post)]
+        posts = [p for p in posts if user_filter(p)]
         print(f"\nAfter user filter: {len(posts)} posts")
 
     return posts, trend_report
 
 
 # helper function to get user filter option
-def get_user_filter_option():
+def filter_options():
     # get needed data
     users = get_users_data()
     genders = set(user['gender'] for user in users)
@@ -73,19 +73,19 @@ def get_user_filter_option():
         selected_gender = list(genders)[gender_choice - 1]
 
         # apply gender filter
-        filter_function = lambda post: next((user for user in users if user['user_id'] == post['user_id']), None)['gender'] == selected_gender
+        filter_function = lambda post: next((u for u in users if u['user_id'] == post['user_id']), None)['gender'] == selected_gender
 
     # filter by age
     elif filter_choice == 2:
-        # print available ages and get user choice
+        # print available ages and get user choice for min and max age
         print("\nAvailable ages:")
         for index, age in enumerate(ages, 1):
             print(f"{index}. {age}")
-        age_choice = int(input("Select age: "))
-        selected_age = list(ages)[age_choice - 1]
+        min_age = int(input("\nEnter minimum age: "))
+        max_age = int(input("Enter maximum age: "))
 
         # apply age filter
-        filter_function = lambda post: next((user for user in users if user['user_id'] == post['user_id']), None)['age'] == selected_age
+        filter_function = lambda post: min_age <= next((u for u in users if u['user_id'] == post['user_id']), None)['age'] <= max_age
 
     # filter by location
     elif filter_choice == 3:
@@ -97,7 +97,7 @@ def get_user_filter_option():
         selected_location = list(locations)[location_choice - 1]
 
         # apply location filter
-        filter_function = lambda post: next((user for user in users if user['user_id'] == post['user_id']), None)['location'] == selected_location
+        filter_function = lambda post: next((u for u in users if u['user_id'] == post['user_id']), None)['location'] == selected_location
 
     return filter_function
 
@@ -108,11 +108,13 @@ def print_posts_and_comments():
     users = get_users_data()
 
     for post in posts:
+        # get user info from database
         user_id = post['user_id']
         user = next((u for u in users if u['user_id'] == user_id), None)
         user_name = user['user_name'] if user else 'Unknown User'
+        age = user['age'] if user else 'Unknown Age'
 
-        print(f"Post ID: {post['post_id']}, User: {user_name}, Date: {post['post_date']} \nContent: {post['content']}")
+        print(f"Post ID: {post['post_id']}, User: {user_name}, Age: {age}, Date: {post['post_date']} \nContent: {post['content']}")
         
         post_comments = [comment for comment in comments if comment['post_id'] == post['post_id']]
         
@@ -173,7 +175,7 @@ def main():
     elif filter_choice == 2:
         keyword_exclude = input("Enter keyword to exclude: ")
     elif filter_choice == 3:
-        user_filter = get_user_filter_option()
+        user_filter = filter_options()
 
     # Get trending posts and report
     trending_posts, trend_report = get_trending_posts(keyword_include, keyword_exclude, user_filter)

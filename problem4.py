@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import re
 
 # provides trending posts with the options of filtering
-def get_trending_posts(keyword_include=None, keyword_exclude=None, user_filter=None):
+def get_trending_posts(include_keyword=None, exclude_keyword=None, user_filter=None):
     # get needed data
     posts = get_posts_data()
     views = get_views_data()
@@ -23,13 +23,13 @@ def get_trending_posts(keyword_include=None, keyword_exclude=None, user_filter=N
         trend_report[post_id] = 0.5*(post_views) + post_comments
     
     # modify trend report if include filter is applied
-    if keyword_include:
-        posts = [p for p in posts if keyword_include.lower() in p['content'].lower()]
+    if include_keyword:
+        posts = [p for p in posts if include_keyword.lower() in p['content'].lower()]
         print(f"\nAfter include filter: {len(posts)} posts")
 
     # modify trend report if exclude filter is applied
-    if keyword_exclude:
-        posts = [p for p in posts if keyword_exclude.lower() not in p['content'].lower()]
+    if exclude_keyword:
+        posts = [p for p in posts if exclude_keyword.lower() not in p['content'].lower()]
         print(f"\nAfter exclude filter: {len(posts)} posts")
 
     # modify trend report if user filter is applied
@@ -164,21 +164,21 @@ def main():
 
     filter_choice = int(input("Select filter option: "))
 
-    keyword_include = None
-    keyword_exclude = None
+    include_keyword = None
+    exclude_keyword = None
     user_filter = None
 
     if filter_choice == 0:
         pass
     elif filter_choice == 1:
-        keyword_include = input("Enter keyword to include: ")
+        include_keyword = input("Enter keyword to include: ")
     elif filter_choice == 2:
-        keyword_exclude = input("Enter keyword to exclude: ")
+        exclude_keyword = input("Enter keyword to exclude: ")
     elif filter_choice == 3:
         user_filter = filter_options()
 
     # Get trending posts and report
-    trending_posts, trend_report = get_trending_posts(keyword_include, keyword_exclude, user_filter)
+    trending_posts, trend_report = get_trending_posts(include_keyword, exclude_keyword, user_filter)
 
     # Print trending posts
     print("\nTrending Posts:")

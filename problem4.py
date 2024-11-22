@@ -20,7 +20,7 @@ def get_trending_posts(include_keyword=None, exclude_keyword=None, user_filter=N
         post_comments = len([c for c in comments if c['post_id'] == post_id])
 
         # store in dictionary
-        trend_report[post_id] = 0.5*(post_views) + post_comments
+        trend_report[post_id] = 0.2*(post_views) + 0.8*(post_comments)
     
     # modify trend report if include filter is applied
     if include_keyword:
@@ -41,7 +41,7 @@ def get_trending_posts(include_keyword=None, exclude_keyword=None, user_filter=N
 
 
 # helper function to get user filter option
-def filter_options():
+def user_attribute_filter_options():
     # get needed data
     users = get_users_data()
     genders = set(user['gender'] for user in users)
@@ -175,7 +175,7 @@ def main():
     elif filter_choice == 2:
         exclude_keyword = input("Enter keyword to exclude: ")
     elif filter_choice == 3:
-        user_filter = filter_options()
+        user_filter = user_attribute_filter_options()
 
     # Get trending posts and report
     trending_posts, trend_report = get_trending_posts(include_keyword, exclude_keyword, user_filter)
@@ -183,7 +183,7 @@ def main():
     # Print trending posts
     print("\nTrending Posts:")
     for post in trending_posts:
-        print(f"Post ID: {post['post_id']}, Trend Score: {trend_report[post['post_id']]}")
+        print(f"Post ID: {post['post_id']}, Trend Score: {trend_report[post['post_id']]:.2f}")
 
     generate_word_cloud(trending_posts)
 
